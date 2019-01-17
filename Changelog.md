@@ -5,6 +5,7 @@ Language Features:
 
 
 Compiler Features:
+ * ABI Decoder: The experimental decoder to raise an error on dirty inputs.
  * Type Checker: Give better error messages for some literal conversions
  * Peephole Optimizer: Remove double ``iszero`` before ``jumpi``.
  * SMTChecker: Support enums without typecast.
