@@ -23,7 +23,7 @@
 using namespace std;
 using namespace yul::test::yul_fuzzer;
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Literal const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, Literal const& _x)
 {
 	switch (_x.literal_oneof_case())
 	{
@@ -37,12 +37,12 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Literal const& _x)
 	return _os;
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, VarRef const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, VarRef const& _x)
 {
 	return _os  << "x_" << (static_cast<uint32_t>(_x.varnum()) % 10);
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Expression const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, Expression const& _x)
 {
 	switch (_x.expr_oneof_case())
 	{
@@ -65,7 +65,7 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Expression const& _x)
 	return _os;
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, BinaryOp const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, BinaryOp const& _x)
 {
 	switch (_x.op())
 	{
@@ -140,12 +140,12 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, BinaryOp const& _x)
 }
 
 // New var numbering starts from x_10 until x_16
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, VarDecl const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, VarDecl const& _x)
 {
 	return _os << "let x_" << ((_x.id() % 7) + 10) << " := " << _x.expr() << "\n";
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, TypedVarDecl const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, TypedVarDecl const& _x)
 {
 	_os << "let x_" << ((_x.id() % 7) + 10);
 	switch (_x.type())
@@ -187,7 +187,7 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, TypedVarDecl const& _x)
 	return _os;
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, UnaryOp const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, UnaryOp const& _x)
 {
 	switch (_x.op())
 	{
@@ -207,12 +207,12 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, UnaryOp const& _x)
 	return _os  << "(" << _x.operand() << ")";
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, AssignmentStatement const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, AssignmentStatement const& _x)
 {
 	return _os  << _x.ref_id() << " := " << _x.expr() << "\n";
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, IfStmt const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, IfStmt const& _x)
 {
 	return _os <<
 			"if " <<
@@ -221,7 +221,7 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, IfStmt const& _x)
 			_x.if_body();
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, StoreFunc const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, StoreFunc const& _x)
 {
 	switch (_x.st())
 	{
@@ -235,7 +235,7 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, StoreFunc const& _x)
 	return _os;
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Statement const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, Statement const& _x)
 {
 	switch (_x.stmt_oneof_case())
 	{
@@ -260,7 +260,7 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Statement const& _x)
 	return _os;
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Block const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, Block const& _x)
 {
 	if (_x.statements_size() > 0)
 	{
@@ -276,7 +276,7 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Block const& _x)
 	return _os;
 }
 
-ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Function const& _x)
+ostream& yul::test::yul_fuzzer::protoState::operator<<(ostream& _os, Function const& _x)
 {
 	_os << "{\n"
 		<< "let a,b := foo(calldataload(0),calldataload(32),calldataload(64),calldataload(96),calldataload(128),"
@@ -289,14 +289,14 @@ ostream& yul::test::yul_fuzzer::operator<<(ostream& _os, Function const& _x)
 	return _os;
 }
 
-string yul::test::yul_fuzzer::functionToString(Function const& _input)
+string yul::test::yul_fuzzer::protoState::functionToString(Function const& _input)
 {
 	ostringstream os;
 	os << _input;
 	return os.str();
 }
 
-string yul::test::yul_fuzzer::protoToYul(const uint8_t* _data, size_t _size)
+string yul::test::yul_fuzzer::protoState::protoToYul(const uint8_t* _data, size_t _size)
 {
 	Function message;
 	if (!message.ParsePartialFromArray(_data, _size))

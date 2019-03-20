@@ -157,4 +157,4 @@ message Function {
   required Block statements = 1;
 }
 
-package yul.test.yul_fuzzer;
+package yul.test.yul_fuzzer.protoState;

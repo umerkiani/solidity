@@ -29,23 +29,26 @@ namespace yul_fuzzer
 {
 class Function;
 
-std::string functionToString(Function const& input);
-std::string protoToYul(uint8_t const* data, size_t size);
-std::ostream& operator<<(std::ostream& _os, BinaryOp const& _x);
-std::ostream& operator<<(std::ostream& _os, Block const& _x);
-std::ostream& operator<<(std::ostream& _os, Literal const& _x);
-std::ostream& operator<<(std::ostream& _os, VarRef const& _x);
-std::ostream& operator<<(std::ostream& _os, Expression const& _x);
-std::ostream& operator<<(std::ostream& _os, BinaryOp const& _x);
-std::ostream& operator<<(std::ostream& _os, VarDecl const& _x);
-std::ostream& operator<<(std::ostream& _os, TypedVarDecl const& _x);
-std::ostream& operator<<(std::ostream& _os, UnaryOp const& _x);
-std::ostream& operator<<(std::ostream& _os, AssignmentStatement const& _x);
-std::ostream& operator<<(std::ostream& _os, IfStmt const& _x);
-std::ostream& operator<<(std::ostream& _os, StoreFunc const& _x);
-std::ostream& operator<<(std::ostream& _os, Statement const& _x);
-std::ostream& operator<<(std::ostream& _os, Block const& _x);
-std::ostream& operator<<(std::ostream& _os, Function const& _x);
+class protoState {
+	std::string functionToString(Function const& input);
+	std::string protoToYul(uint8_t const* data, size_t size);
+	std::ostream& operator<<(std::ostream& _os, BinaryOp const& _x);
+	std::ostream& operator<<(std::ostream& _os, Block const& _x);
+	std::ostream& operator<<(std::ostream& _os, Literal const& _x);
+	std::ostream& operator<<(std::ostream& _os, VarRef const& _x);
+	std::ostream& operator<<(std::ostream& _os, Expression const& _x);
+	std::ostream& operator<<(std::ostream& _os, BinaryOp const& _x);
+	std::ostream& operator<<(std::ostream& _os, VarDecl const& _x);
+	std::ostream& operator<<(std::ostream& _os, TypedVarDecl const& _x);
+	std::ostream& operator<<(std::ostream& _os, UnaryOp const& _x);
+	std::ostream& operator<<(std::ostream& _os, AssignmentStatement const& _x);
+	std::ostream& operator<<(std::ostream& _os, IfStmt const& _x);
+	std::ostream& operator<<(std::ostream& _os, StoreFunc const& _x);
+	std::ostream& operator<<(std::ostream& _os, Statement const& _x);
+	std::ostream& operator<<(std::ostream& _os, Block const& _x);
+	std::ostream& operator<<(std::ostream& _os, Function const& _x);
+
+};
 }
 }
 }
