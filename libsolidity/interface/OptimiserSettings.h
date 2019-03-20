@@ -45,7 +45,7 @@ struct OptimiserSettings
 		return s;
 	}
 	/// Standard optimisations.
-	static OptimiserSettings enabled()
+	static OptimiserSettings regular()
 	{
 		OptimiserSettings s;
 		s.runOrderLiterals = true;
@@ -63,7 +63,7 @@ struct OptimiserSettings
 	/// Standard optimisations plus yul and stack optimiser.
 	static OptimiserSettings full()
 	{
-		OptimiserSettings s = enabled();
+		OptimiserSettings s = regular();
 		s.optimizeStackAllocation = true;
 		s.runYulOptimiser = true;
 		return s;
