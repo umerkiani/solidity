@@ -331,6 +331,8 @@ The more people examine a piece of code, the more issues are found.
 Asking people to review your code also helps as a cross-check to find out whether your code
 is easy to understand - a very important criterion for good smart contracts.
 
+.. _formal_verification:
+
 *******************
 Formal Verification
 *******************
@@ -344,3 +346,118 @@ Note that formal verification itself can only help you understand the
 difference between what you did (the specification) and how you did it
 (the actual implementation). You still need to check whether the specification
 is what you wanted and that you did not miss any unintended effects of it.
+
+Solidity implements a formal verification approach based on SMT solving.  The
+SMTChecker module automatically tries to prove that the code satisfies the
+specification given by ``require/assert`` statements, that is, it considers
+``require`` statements as assumptions and tries to prove that the conditions
+inside ``assert`` statements are always true.  If an assertion failure is
+found, a counterexample is given to the user, showing how the assertion can be
+violated.
+
+The SMTChecker also checks automatically for underflow/overflow, trivial
+conditions and unreachable code.
+It is currently an experimental feature, therefore in order to use it you need
+to enable it via :ref:`a pragma directive<smt_checker>`.
+
+The SMTChecker traverses the Solidity AST creating and collecting program constraints.
+When it encounters a verification target, an SMT solver is invoked to determine the outcome.
+
+For more details on how the SMT encoding works internally, see
+`our paper <https://github.com/leonardoalt/text/blob/master/solidity_isola_2018/main.pdf>`_.
+
+Abstraction and false positives
+===============================
+
+The SMTChecker implements abstractions in an incomplete and sound way: If a bug
+is reported, it might be a false positive introduced by abstractions (while
+erasing knowledge or using a non-precise type), but if it determines that a
+verification target is safe, it is indeed safe (there are no false negatives).
+
+The SMT encoding tries to be as precise as possible, mapping Solidity types and
+expressions to their closest SMT representation, as shown in the table below.
+
++-----------------------+--------------+-----------------------------+
+|Solidity type          |SMT sort      |Theories (quantifier-free)   |
++=======================+==============+=============================+
+|Boolean                |Bool          |Bool                         |
++-----------------------+--------------+-----------------------------+
+|intN, uintN, address   |Integer       |LIA, NIA                     |
+|bytesN, enum           |              |                             |
++-----------------------+--------------+-----------------------------+
+|array, mapping         |Array         |Arrays                       |
++-----------------------+--------------+-----------------------------+
+|other types            |Integer       |LIA                          |
++-----------------------+--------------+-----------------------------+
+
+Types that are not yet supported are abstracted by a single 256-bit unsigned integer,
+where their unsupported operations are ignored.
+
+Function calls are inlined when possible, otherwise they are abstracted by an
+uninterpreted function over the arguments.
+
++--------------------------------+--------------------------------------+
+|Function call kind              |SMT behavior                          |
++================================+======================================+
+|assert                          |Verification target                   |
++--------------------------------+--------------------------------------+
+|require                         |Assumption                            |
++--------------------------------+--------------------------------------+
+|internal                        |Inline function call                  |
++--------------------------------+--------------------------------------+
+|external                        |Erase knowledge about state variables |
+|                                |and local storage references.         |
+|                                |Abstracted with UF.                   |
++--------------------------------+--------------------------------------+
+|gasleft, blockhash, keccak256,  |Abstracted with UF.                   |
+|ecrecover, ripemd160, addmod,   |                                      |
+|mulmod                          |                                      |
++--------------------------------+--------------------------------------+
+|others                          |Currently unsupported.                |
++--------------------------------+--------------------------------------+
+
+Using abstraction means loss of precise knowledge, but in many cases it does
+not mean loss of proving power.
+
+::
+
+   pragma solidity ^0.5.0;
+
+   contract Recover
+   {
+           function f(
+                   bytes32 hash,
+                   uint8 _v1, uint8 _v2,
+                   bytes32 _r1, bytes32 _r2,
+                   bytes32 _s1, bytes32 _s2
+           ) public pure returns (address) {
+                   address a1 = ecrecover(hash, _v1, _r1, _s1);
+                   require(_v1 == _v2);
+                   require(_r1 == _r2);
+                   require(_s1 == _s2);
+                   address a2 = ecrecover(hash, _v2, _r2, _s2);
+                   assert(a1 == a2);
+                   return a1;
+           }
+   }
+
+In the example above, the SMTChecker is not expressive enough to actually
+compute ``ecrecover``, but by modelling the function calls as uninterpreted
+functions we know that the return value is the same when called on equivalent
+parameters. This is enough to prove that the assertion above is always true.
+
+Abstracting an external or complex function call can be done for functions
+known to be deterministic, and can be easily done for pure functions.  It is
+however difficult to do with general external functions, since they might
+depend on state variables.
+
+External function calls also imply that any current knowledge that the
+SMTChecker might have regarding mutable state variables needs to be erased to
+guarantee no false negatives, since the called external function might direct
+or indirectly call a function in the analyzed contract that changes state
+variables.
+
+Aliasing and references
+=======================
+
+TODO
